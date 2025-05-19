@@ -7,11 +7,16 @@ import DeleteConfirmation from "./components/DeleteConfirmation.jsx";
 import logoImg from "./assets/logo.png";
 import { sortPlacesByDistance } from "./loc.js";
 
+const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+const storedPlaces = storedIds.map((id) =>
+  AVAILABLE_PLACES.find((place) => place.id === id)
+);
+
 function App() {
-  const modal = useRef();
   const selectedPlace = useRef();
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [availablePlaces, setAvailablePlaces] = useState([]);
-  const [pickedPlaces, setPickedPlaces] = useState([]);
+  const [pickedPlaces, setPickedPlaces] = useState(storedPlaces);
 
   // This effect runs AFTER every component execution. Meaning after app is rendered.
   useEffect(() => {
@@ -32,12 +37,12 @@ function App() {
   // If the [] is not provided, the effect will run after every render creating an infinite loop if the state is updated inside the effect.
 
   function handleStartRemovePlace(id) {
-    modal.current.open();
+    setModalIsOpen(true);
     selectedPlace.current = id;
   }
 
   function handleStopRemovePlace() {
-    modal.current.close();
+    setModalIsOpen(false);
   }
 
   function handleSelectPlace(id) {
@@ -48,6 +53,12 @@ function App() {
       const place = AVAILABLE_PLACES.find((place) => place.id === id);
       return [place, ...prevPickedPlaces];
     });
+
+    const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || []; // Get the selected places from local storage or an empty array if it doesn't exist
+    if (storedIds.includes(id)) {
+      return; // If the place is already selected, do nothing
+    }
+    localStorage.setItem("selectedPlaces", JSON.stringify([id, ...storedIds]));
   }
 
   function handleRemovePlace() {
@@ -55,11 +66,19 @@ function App() {
       prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
     );
     modal.current.close();
+
+    const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+    localStorage.setItem(
+      "selectedPlaces",
+      JSON.stringify(storedIds.filter((id) => id !== selectedPlace.current))
+      // true if you want to keep that item and false if you want to remove it
+      // When id !== selectedPlace.current, returnds false it will remove the item
+    );
   }
 
   return (
     <>
-      <Modal ref={modal}>
+      <Modal open={modalIsOpen}>
         <DeleteConfirmation
           onCancel={handleStopRemovePlace}
           onConfirm={handleRemovePlace}
