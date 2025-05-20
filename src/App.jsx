@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import Places from "./components/Places.jsx";
 import { AVAILABLE_PLACES } from "./data.js";
@@ -61,20 +61,27 @@ function App() {
     localStorage.setItem("selectedPlaces", JSON.stringify([id, ...storedIds]));
   }
 
-  function handleRemovePlace() {
-    setPickedPlaces((prevPickedPlaces) =>
-      prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
-    );
-    setModalIsOpen(false);
+  const handleRemovePlace = useCallback(
+    // useCallback takes a function and an array of dependencies. It returns a memoized version of the function that only changes if one of the dependencies has changed.
+    // This is useful to prevent unnecessary re-renders of the component that uses the function.
+    function handleRemovePlace() {
+      setPickedPlaces((prevPickedPlaces) =>
+        prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
+      );
+      setModalIsOpen(false);
 
-    const storedIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
-    localStorage.setItem(
-      "selectedPlaces",
-      JSON.stringify(storedIds.filter((id) => id !== selectedPlace.current))
-      // true if you want to keep that item and false if you want to remove it
-      // When id !== selectedPlace.current, returnds false it will remove the item
-    );
-  }
+      const storedIds =
+        JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+      localStorage.setItem(
+        "selectedPlaces",
+        JSON.stringify(storedIds.filter((id) => id !== selectedPlace.current))
+        // true if you want to keep that item and false if you want to remove it
+        // When id !== selectedPlace.current, returnds false it will remove the item
+      );
+    },
+    []
+    // Put in dependencies anything that is used inside the function and is not a prop or a state.
+  );
 
   return (
     <>

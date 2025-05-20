@@ -15,7 +15,7 @@ export default function Modal({ open, children, onClose }) {
   // By removing the ref and imperial hangle we manage the modal in a declerative way, instead of and imperative way
   return createPortal(
     <dialog className="modal" ref={dialog} onClose={onClose}>
-      {children}
+      {open ? children : null}
     </dialog>,
     document.getElementById("modal")
   );
