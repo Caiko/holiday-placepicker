@@ -67,7 +67,7 @@ place-picker/
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/place-picker.git
+git clone https://github.com/Caiko/holiday-placepicker.git
 cd place-picker
 ```
 
